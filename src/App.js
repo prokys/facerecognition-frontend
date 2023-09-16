@@ -24,42 +24,7 @@ const config = {
   cross: "dead",
   random: 10
 }
-const returnClarifaiRequestOptions = (imageUrl) =>{
-  // Your PAT (Personal Access Token) can be found in the portal under Authentification
-  const PAT = '62ed9203560d4d62ae37a1f93f9937b8';
-  // Specify the correct user_id/app_id pairings
-  // Since you're making inferences outside your app's scope
-  const USER_ID = '6zsnxmq8z8rc';       
-  const APP_ID = 'my-first-application-hst4bl';
-  // Change these to whatever model and image URL you want to use 
-  const IMAGE_URL = imageUrl;
 
-  const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
-                }
-            }
-        }
-    ]
-});
-const requestOptions = {
-  method: 'POST',
-  headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Key ' + PAT
-  },
-  body: raw
-};
-
-return requestOptions;
-}
 
 const initialState = {
   input: '',
@@ -117,15 +82,15 @@ class App extends Component {
   }
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-    
-    // fetch("https://api.clarifai.com/v2/models/face-detection/outputs", returnClarifaiRequestOptions(this.state.input))
-    // .then(response => response.json())
-    // .then(result => this.displayFaceBox(this.calculateFaceLocation(result)))
-    // .catch(error => console.log('error', error));
-
-    fetch("https://api.clarifai.com/v2/models/face-detection/outputs", returnClarifaiRequestOptions(this.state.input))
-        .then(response => {
-          if (response){
+    fetch("http://localhost:3000/imageurl", {
+              method: 'post',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                input: this.state.input
+              })
+    })
+    .then(response => {
+          if (response.ok){
             fetch('http://localhost:3000/image', {
               method: 'put',
               headers: {'Content-Type': 'application/json'},
@@ -140,12 +105,12 @@ class App extends Component {
               )
             }))
             .catch(console.log);
-          }
-        return response.json();
+            return response.json();
+          } 
         })
         .then(result => this.displayFaceBox(this.calculateFaceLocation(result)))
         .catch(error => console.log('error', error));                
-  }
+}
   onRouteChange = (route) =>{
     if(route === 'signout'){
       this.setState(initialState)
