@@ -89,8 +89,8 @@ class App extends Component {
               })
     })
     .then(response => {
-          if (response.ok){
-            fetch('http://localhost:3000/image', {
+            if(response.status !== 400){
+                fetch('http://localhost:3000/image', {
               method: 'put',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
@@ -105,7 +105,10 @@ class App extends Component {
             }))
             .catch(console.log);
             return response.json();
-          } 
+            }else{
+              return response.status(400).json('Wrong url')
+            }
+            
         })
         .then(result => this.displayFaceBox(this.calculateFaceLocation(result)))
         .catch(error => console.log('error', error));                
