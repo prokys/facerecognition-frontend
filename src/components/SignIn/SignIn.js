@@ -34,6 +34,7 @@ class SignIn extends React.Component {
                 this.props.onRouteChange('home')
             }
         })
+        .catch(err => console.log('error ' +err))
         
     }
 
