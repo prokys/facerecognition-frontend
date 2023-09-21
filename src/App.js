@@ -81,7 +81,7 @@ class App extends Component {
   }
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-    fetch("http://localhost:3000/imageurl", {
+    fetch("https://face-recognition-backend-69ge.onrender.com/imageurl", {
               method: 'post',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
@@ -90,7 +90,7 @@ class App extends Component {
     })
     .then(response => {
             if(response.status !== 400){
-                fetch('http://localhost:3000/image', {
+                fetch('https://face-recognition-backend-69ge.onrender.com/image', {
               method: 'put',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
