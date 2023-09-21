@@ -89,7 +89,7 @@ class App extends Component {
               })
     })
     .then(response => {
-            if(response.status !== 400){
+            if(response.status === 200){
                 fetch('https://face-recognition-backend-69ge.onrender.com/image', {
               method: 'put',
               headers: {'Content-Type': 'application/json'},
