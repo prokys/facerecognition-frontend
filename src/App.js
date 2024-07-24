@@ -8,6 +8,7 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import ParticlesBg from 'particles-bg'
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
+import NumberOfFaces from './components/NumberOfFaces/NumberOfFaces';
 
 
 const config = {
@@ -131,6 +132,7 @@ class App extends Component {
         <ImageLinkForm 
         onInputChange={this.onInputChange} 
         onButtonSubmit={this.onButtonSubmit}/>
+        <NumberOfFaces faces={box.length}/>
         <FaceRecognition box = {box} imageUrl={imageUrl}/>
         </div>
         : (
