@@ -29,7 +29,7 @@ const config = {
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  box: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -60,59 +60,54 @@ class App extends Component {
   }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
+    const regions = data.outputs[0].data.regions;
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col*width,
-      topRow: clarifaiFace.top_row*height,
-      rightCol: width - (clarifaiFace.right_col*width),
-      bottomRow: height - (clarifaiFace.bottom_row*height),
-    }
+  
+    return regions.map(region => {
+      const clarifaiFace = region.region_info.bounding_box;
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      };
+    });
   }
 
-  displayFaceBox = (box) => {
-    this.setState({box: box});
+  displayFaceBox = (boxes) => {
+    this.setState({ box: boxes });
   }
 
   onInputChange = (event) => {
     this.setState({input: event.target.value});
   }
   onButtonSubmit = () => {
-    this.setState({imageUrl: this.state.input});
+    this.setState({ imageUrl: this.state.input, box: [] });
     fetch("https://face-recognition-backend-69ge.onrender.com/imageurl", {
-              method: 'post',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                input: this.state.input
-              })
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: this.state.input })
     })
-    .then(response => {
-            if(response.status === 200){
-                fetch('https://face-recognition-backend-69ge.onrender.com/image', {
-              method: 'put',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                id: this.state.user.id
-              })
-            })
-            .then(response => response.json()
-            .then(count => {
-              this.setState(
-                Object.assign(this.state.user, {entries: count})
-              )
-            }))
-            .catch(console.log);
-            return response.json();
-            }else{
-              return response.status(400).json('Wrong url')
-            }
-            
+    .then(response => response.json())
+    .then(result => {
+      if (result) {
+        fetch('https://face-recognition-backend-69ge.onrender.com/image', {
+          method: 'put',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: this.state.user.id })
         })
-        .then(result => this.displayFaceBox(this.calculateFaceLocation(result)))
-        .catch(error => console.log('error', error));                
-}
+        .then(response => response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.user, { entries: count }));
+        })
+        .catch(console.log);
+      }
+      this.displayFaceBox(this.calculateFaceLocation(result))
+    })
+    .catch(error => console.log('error', error));
+  }
   onRouteChange = (route) =>{
     if(route === 'signout'){
       this.setState(initialState)
